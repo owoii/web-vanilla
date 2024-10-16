@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch Card</title>
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            color: white;
+        }
+
+        #container {
+            height: 100vh;
+            width: 100vw;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #canvas {
+            display: block;
+            margin: 0 auto;
+            background: url('./result.jpg');
+            background-size: cover;
+            cursor: crosshair;
+            cursor: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/4273/circular-cursor.png) 53 53,
+                crosshair;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <h1>Scratch Card</h1>
+        <canvas id="canvas" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        const
+            canvas = document.getElementById('canvas'),
+            context = canvas.getContext("2d"),
+            img = new Image()
+
+        let brushRadius = (canvas.width / 100) * 5
+
+        if (brushRadius < 50) {
+            brushRadius = 50
+        }
+        img.src = "./guaguale.png"
+
+        // load image
+        img.onload = () => {
+            context.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+
+
+        /**
+         * get brush postion
+        */
+        function getBrushPos(xRef, yRef) {
+            const canvasRect = canvas.getBoundingClientRect()
+
+            return {
+                x: Math.floor(
+                    ((xRef - canvasRect.left) / (canvasRect.right - canvasRect.left)) * canvas.width
+                ),
+                y: Math.floor(
+                    ((yRef - canvasRect.top) / (canvasRect.bottom - canvasRect.top)) * canvas.height
+                )
+            }
+        }
+
+        function drawDot(mouseX, mouseY) {
+            context.beginPath()
+            context.arc(
+                mouseX,
+                mouseY,
+                brushRadius,
+                0,
+                2 * Math.PI,
+                true
+            )
+            context.fillStyle = '#000'
+
+            context.globalCompositeOperation = "destination-out"
+
+            context.fill()
+        }
+        let isDrawing = false;
+        canvas.addEventListener('mousemove', (e) => {
+            const brushPos = getBrushPos(e.clientX, e.clientY)
+            if (isDrawing) {
+                drawDot(
+                    brushPos.x,
+                    brushPos.y
+                )
+            }
+        }, false)
+
+        document.addEventListener('mousedown', () => {
+            isDrawing = true
+        })
+
+        document.addEventListener('mouseup', (e) => {
+            isDrawing = false;
+        });
+        // canvas.addEventListener('mouseout', () => {
+        //     isDrawing = false
+        // })
+
+
+    </script>
+</body>
+
+</html>
